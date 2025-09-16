@@ -16,6 +16,18 @@
         rustPkgs = pkgs.rustBuilder.makePackageSet {
           rustVersion = "1.75.0";
           packageFun = import ./Cargo.nix;
+          packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
+            # parentheses disambiguate each makeOverride call as a single list element
+            (pkgs.rustBuilder.rustLib.makeOverride {
+                name = "hidapi";
+                overrideAttrs = drv: {
+                  propagatedBuildInputs = drv.propagatedBuildInputs or [ ] ++ [
+                    pkgs.pkg-config
+                    pkgs.udev
+                  ];
+                };
+            })
+          ];
         };
 
       in rec {
